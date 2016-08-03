@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+<name>Compatibilidade Modulos 2.2.x para 2.3.x [Loja5]</name>
+<version>1.0</version>
+<code>compatibilitade-modulos-loja5</code>
+<link>http://www.loja5.com.br/</link>
+<author>Bruno Alencar - www.loja5.com.br</author>
+<description></description>
+
+<file path="admin/controller/sale/order.php">
+<operation>
+<notes/>
+<search index="" regex="false" trim="false"><![CDATA[if (is_file(DIR_CATALOG . 'controller/extension/payment/' . $order_info['payment_code'] . '.php')) {]]></search>
+<add offset="0" trim="false" position="replace"><![CDATA[	
+//fixa erro de modulo de até 2.2.x para 2.3.x
+if (is_file(DIR_CATALOG . 'controller/payment/' . $order_info['payment_code'] . '.php')) {
+$content = $this->load->controller('payment/' . $order_info['payment_code'] . '/order');
+}elseif (is_file(DIR_CATALOG . 'controller/extension/payment/' . $order_info['payment_code'] . '.php')) {
+]]></add>
+</operation>
+</file>
+
+<file path="system/engine/loader.php">
+<operation>
+<notes/>
+<search index="" regex="false" trim="false"><![CDATA[$result = $this->registry->get('event')->trigger('controller/' . $route . '/after', array(&$route, &$data, &$output));]]></search>
+<add offset="0" trim="false" position="after"><![CDATA[	
+//fixa erro de modulo de até 2.2.x para 2.3.x
+if(version_compare(VERSION, '2.3', '>=')){
+if ($output instanceof Exception) {
+	$partes = explode('/',$route);
+	if(isset($partes[1])){
+		switch($partes[1]){
+			case 'payment':
+			case 'shipping':
+			case 'module':
+			$rota_velha = str_replace('extension/','',$route);
+			$action = new Action($rota_velha);
+			$output = $action->execute($this->registry, array(&$data));
+			break;
+		}
+	}
+}
+}
+]]></add>
+</operation>
+</file>
+
+<file path="admin/controller/startup/permission.php">
+<operation>
+<notes/>
+<search index="" regex="false" trim="false"><![CDATA[$part = explode('/', $this->request->get['route']);]]></search>
+<add offset="0" trim="false" position="after"><![CDATA[	
+//fixa erro de modulo de até 2.2.x para 2.3.x
+if(version_compare(VERSION, '2.3', '>=')){
+	if(isset($part[0])){
+		switch($part[0]){
+			case 'payment':
+			case 'shipping':
+			case 'module':
+			$route .= 'extension/';
+			break;
+		}
+	}
+}
+]]></add>
+</operation>
+</file>
+
+<file path="admin/controller/extension/extension/payment.php">
+<operation>
+<notes/>
+<search index="" regex="false" trim="false"><![CDATA[$this->load->controller('extension/payment/' . $this->request->get['extension'] . '/install');]]></search>
+<add offset="0" trim="false" position="replace"><![CDATA[	
+//fixa erro de modulo de até 2.2.x para 2.3.x
+$file = DIR_APPLICATION . 'controller/payment/'.$this->request->get['extension'].'.php';
+if(is_file($file)){
+	$this->load->controller('payment/' . $this->request->get['extension'] . '/install');
+}else{
+	$this->load->controller('extension/payment/' . $this->request->get['extension'] . '/install');
+}
+]]></add>
+</operation>
+<operation>
+<notes/>
+<search index="" regex="false" trim="false"><![CDATA[$this->load->controller('extension/payment/' . $this->request->get['extension'] . '/uninstall');]]></search>
+<add offset="0" trim="false" position="replace"><![CDATA[	
+//fixa erro de modulo de até 2.2.x para 2.3.x
+$file = DIR_APPLICATION . 'controller/payment/'.$this->request->get['extension'].'.php';
+if(is_file($file)){
+	$this->load->controller('payment/' . $this->request->get['extension'] . '/uninstall');
+}else{
+	$this->load->controller('extension/payment/' . $this->request->get['extension'] . '/uninstall');
+}
+]]></add>
+</operation>
+</file>
+
+<file path="admin/controller/extension/extension/shipping.php">
+<operation>
+<notes/>
+<search index="" regex="false" trim="false"><![CDATA[$this->load->controller('extension/shipping/' . $this->request->get['extension'] . '/install');]]></search>
+<add offset="0" trim="false" position="replace"><![CDATA[	
+//fixa erro de modulo de até 2.2.x para 2.3.x
+$file = DIR_APPLICATION . 'controller/shipping/'.$this->request->get['extension'].'.php';
+if(is_file($file)){
+	$this->load->controller('shipping/' . $this->request->get['extension'] . '/install');
+}else{
+	$this->load->controller('extension/shipping/' . $this->request->get['extension'] . '/install');
+}
+]]></add>
+</operation>
+<operation>
+<notes/>
+<search index="" regex="false" trim="false"><![CDATA[$this->load->controller('extension/shipping/' . $this->request->get['extension'] . '/uninstall');]]></search>
+<add offset="0" trim="false" position="replace"><![CDATA[	
+//fixa erro de modulo de até 2.2.x para 2.3.x
+$file = DIR_APPLICATION . 'controller/shipping/'.$this->request->get['extension'].'.php';
+if(is_file($file)){
+	$this->load->controller('shipping/' . $this->request->get['extension'] . '/uninstall');
+}else{
+	$this->load->controller('extension/shipping/' . $this->request->get['extension'] . '/uninstall');
+}
+]]></add>
+</operation>
+</file>
+
+<file path="admin/controller/extension/extension/module.php">
+<operation>
+<notes/>
+<search index="" regex="false" trim="false"><![CDATA[$this->load->controller('extension/module/' . $this->request->get['extension'] . '/install');]]></search>
+<add offset="0" trim="false" position="replace"><![CDATA[	
+//fixa erro de modulo de até 2.2.x para 2.3.x
+$file = DIR_APPLICATION . 'controller/module/'.$this->request->get['extension'].'.php';
+if(is_file($file)){
+	$this->load->controller('module/' . $this->request->get['extension'] . '/install');
+}else{
+	$this->load->controller('extension/module/' . $this->request->get['extension'] . '/install');
+}
+]]></add>
+</operation>
+<operation>
+<notes/>
+<search index="" regex="false" trim="false"><![CDATA[$this->load->controller('extension/module/' . $this->request->get['extension'] . '/uninstall');]]></search>
+<add offset="0" trim="false" position="replace"><![CDATA[	
+//fixa erro de modulo de até 2.2.x para 2.3.x
+$file = DIR_APPLICATION . 'controller/module/'.$this->request->get['extension'].'.php';
+if(is_file($file)){
+	$this->load->controller('module/' . $this->request->get['extension'] . '/uninstall');
+}else{
+	$this->load->controller('extension/module/' . $this->request->get['extension'] . '/uninstall');
+}
+]]></add>
+</operation>
+</file>
+
+</modification>
